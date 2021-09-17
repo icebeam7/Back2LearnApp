@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Back2LearnApp.Views.GameView"
+             BackgroundColor="#152F3E">
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
+              Margin="10" 
+              RowSpacing="10">
+
+            <Label Text="{Binding Score, StringFormat='Score: {0}'}"
+                   FontSize="Large"
+                   TextColor="#FFA700"
+                   HorizontalOptions="Center"/>
+
+            <ActivityIndicator Grid.Row="1" 
+                               Color="#FFA700"
+                               IsRunning="{Binding IsBusy}"/>
+
+            <Label Grid.Row="2" 
+                   Text="What's the country?"
+                   FontSize="Medium"
+                   TextColor="#FAE072"/>
+
+            <Image Grid.Row="3" 
+                   WidthRequest="250" 
+                   HeightRequest="200"
+                   Aspect="AspectFit"
+                   Source="{Binding Flag}"
+                   HorizontalOptions="Center"/>
+
+            <Label Grid.Row="4" 
+                   Text="{Binding ResultMessage}"
+                   FontSize="Medium"
+                   TextColor="#FAE072"
+                   HorizontalOptions="Center"/>
+
+            <CollectionView Grid.Row="5" 
+                            BackgroundColor="Transparent"
+                            ItemsSource="{Binding Options}"
+                            SelectedItem="{Binding SelectedCountry}"
+                            SelectionChangedCommand="{Binding EvaluateChoiceCommand}"
+                            SelectionMode="Single">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="10" 
+                                       Orientation="Vertical"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="3"
+                               BackgroundColor="#29404E"
+                               CornerRadius="10"
+                               HeightRequest="30"
+                               Margin="10"
+                               HorizontalOptions="StartAndExpand"
+                               VerticalOptions="Center">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal" />
+                                    <VisualState Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="Orange" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Grid>
+                                <Label Text="{Binding CountryName, StringFormat='> {0}'}"
+                                       TextColor="White"
+                                       FontSize="Medium"
+                                       VerticalTextAlignment="Center"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
