@@ -60,3 +60,11 @@ jobs:
       - name: Build Android
         run: MSBuild /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=back2learnapp /p:AndroidSigningKeyPass=${{ secrets.DECRYPT_KEY }} /p:AndroidSigningKeyStore=back2learnapp.jks /p:AndroidSigningStorePass=${{ secrets.DECRYPT_KEY }} ./Back2LearnApp/Back2LearnApp.Android/Back2LearnApp.Android.csproj
         
+      - name: Setup App Center CLI
+        run: npm install -g appcenter-cli
+        
+#      - name: Upload iOS app to App Center
+#        run: appcenter distribute release --silent --file ./PDFDemo/PDFDemo.iOS/bin/iPhone/Release/PDFDemo.iOS.ipa --app SByteDev/PDFDemo.Xamarin-iOS --group Collaborators --token ${{ secrets.APP_CENTER_TOKEN }}
+          
+      - name: Upload Android app to App Center
+        run: appcenter distribute release --silent --file ./Back2LearnApp/Back2LearnApp.Android/bin/Release/com.luisbeltran.back2learnapp-Signed.apk --app icebeam/Back2LearnApp --group Collaborators --token ${{ secrets.APP_CENTER_TOKEN }}
