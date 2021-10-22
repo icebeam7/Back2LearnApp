@@ -1,0 +1,62 @@
+name: CICD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+#      - name: Setup iOS Certificates
+#        uses: apple-actions/import-codesign-certs@v1
+#        with: 
+#          p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+#          p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+#          keychain: github-actions-xamarin
+#          keychain-password: ''
+
+#      - name: Setup iOS Provisioning Profiles
+#        uses: apple-actions/download-provisioning-profiles@v1
+#        with: 
+#          bundle-id: 'com.companyname.Back2LearnApp'
+#          profile-type: 'IOS_APP_ADHOC'
+#          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+#          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+#          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}  
+
+      - name: Setup Android signing
+        run: |   
+           echo "${{ secrets.KEYSTORE }}" > back2learnapp.asc   
+           gpg -d --passphrase "${{ secrets.DECRYPT_KEY }}" --batch back2learnapp.asc > ./Back2LearnApp/Back2LearnApp.Android/back2learnapp.jks 
+
+#      - name: Set iOS version
+#        run: |
+#          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${{ secrets.APP_VERSION }}" ./PDFDemo.iOS/Info.plist
+#          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" ./PDFDemo.iOS/Info.plist
+
+      - name: Set Android version
+        uses: damienaicheh/update-android-version-manifest-action@v1.0.0
+        with:
+          android-manifest-path: ./Back2LearnApp/Back2LearnApp.Android/Properties/AndroidManifest.xml
+          version-name: ${{ secrets.APP_VERSION }}
+          version-code: ${{ github.run_number }}
+          print-file: true
+
+      - name: Restore NuGet packages
+        run: nuget restore
+
+#      - name: Build iOS
+#        run: MSBuild /t:Build /p:Configuration=Release /p:Platform=iPhone /p:BuildIpa=true ./PDFDemo.iOS/PDFDemo.iOS.csproj
+        
+      - name: Build Android
+        run: MSBuild /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=back2learnapp /p:AndroidSigningKeyPass=${{ secrets.DECRYPT_KEY }} /p:AndroidSigningKeyStore=back2learnapp.jks /p:AndroidSigningStorePass=${{ secrets.DECRYPT_KEY }} ./Back2LearnApp/Back2LearnApp.Android/Back2LearnApp.Android.csproj
+        
